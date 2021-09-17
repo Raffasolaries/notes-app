@@ -10,7 +10,7 @@ import CustomSqsClient from '../utils/sqs';
 /**
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
  */
-export const putItemHandler = async (
+export const putNoteHandler = async (
  event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> => {
  if (event.httpMethod !== 'POST') {

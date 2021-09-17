@@ -59,9 +59,9 @@ Resources:
       Handler: dist/handlers/get-note.getNoteHandler
       Description: A simple example includes a HTTP get method to get one note by id from a DynamoDB table.
       Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref Table
+      # Give Create/Read/Update/Delete Permissions to the SampleTable
+      - DynamoDBCrudPolicy:
+          TableName: !Ref Table
       Events:
         Api:
           Type: Api
@@ -115,6 +115,9 @@ Resources:
 
   WriteQueue:
     Type: AWS::SQS::Queue
+    Properties:
+      QueueName: WriteQueue
+
 
   # Shared layer with Lambda runtime dependencies
   RuntimeDependenciesLayer:

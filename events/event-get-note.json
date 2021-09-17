@@ -1,0 +1,8 @@
+
+{
+ "httpMethod": "GET",
+ "pathParameters": {
+  "id": "id1",
+  "category": "cat1"
+ }
+}
