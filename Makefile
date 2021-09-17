@@ -3,6 +3,8 @@
 
 build-ExampleFunction:
 	$(MAKE) HANDLER=src/handlers/example.ts build-lambda-common
+build-getAllNotesFunction:
+	$(MAKE) HANDLER=src/handlers/get-all-items.ts build-lambda-common
 
 build-lambda-common:
 	npm install

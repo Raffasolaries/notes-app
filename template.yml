@@ -10,16 +10,17 @@ Description: >-
 # Transform section specifies one or more macros that AWS CloudFormation uses to process your template
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-section-structure.html
 Transform:
-  - AWS::Serverless-2016-10-31
+- AWS::Serverless-2016-10-31
 
 Globals:
   Function:
     Layers:
       - !Ref RuntimeDependenciesLayer
     Environment:
-      # # Environment variables used by every function
-      # Variables:
-      #  SAMPLE_TABLE: !Ref SampleTable
+      # Environment variables used by every function
+      Variables:
+       DYNAMODB_TABLE: !Ref Table
+       ITEM_QUEUE: !Ref WriteQueue
     Runtime: nodejs14.x
     MemorySize: 128
     Timeout: 100
@@ -30,20 +31,90 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  # This is a Lambda function config associated with the source code: in src/handlers/example.ts
-  ExampleFunction:
+ # This is a Lambda function config associated with the source code: get-all-notes.js
+  getAllNotesFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
     Properties:
-      Handler: dist/handlers/example.exampleHandler
-      Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
+      Handler: dist/handlers/get-all-notes.getAllNotesHandler
+      Description: A simple example includes a HTTP get method to get all notes from a DynamoDB table.
+      Policies:
+      # Give Create/Read/Update/Delete Permissions to the SampleTable
+      - DynamoDBCrudPolicy:
+            TableName: !Ref Table
       Events:
         Api:
           Type: Api
           Properties:
             Path: /
             Method: GET
+
+  # This is a Lambda function config associated with the source code: get-by-id.js
+  getNoteFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: dist/handlers/get-note.getNoteHandler
+      Description: A simple example includes a HTTP get method to get one note by id from a DynamoDB table.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{category}/{id}
+            Method: GET
+
+  # This is a Lambda function config associated with the source code: write-item.ts
+  writeNoteFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: dist/handlers/write-note.writeNoteHandler
+      Description: A simple example includes an SQS subscription to write queued object to DynamoDB
+      Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+      Events:
+        # Subscription to primary SQS queue
+        SQSQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt WriteQueue.Arn
+            BatchSize: 1
+
+  # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
+  Table:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete
+    Properties:
+      TableName: Notes
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: category
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: category
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+      Tags:
+        - Key: Name
+          Value: notes-dynamodb-table
+
+  WriteQueue:
+    Type: AWS::SQS::Queue
 
   # Shared layer with Lambda runtime dependencies
   RuntimeDependenciesLayer:
