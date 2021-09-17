@@ -6,9 +6,8 @@ import { writeNoteHandler } from '../../../src/handlers/write-note';
 import dynamodb from 'aws-sdk/clients/dynamodb';
 
 // This includes all tests for putItemHandler()
-describe('Test writeItemHandler', function () {
- let writeSpy;
-
+describe('Test writeNoteHandler', function () {
+ let writeSpy: jest.SpyInstance;
  // Test one-time setup and teardown, see more in https://jestjs.io/docs/en/setup-teardown
  beforeAll(() => {
   // Mock dynamodb get and put methods

@@ -6,9 +6,8 @@ import { putNoteHandler } from '../../../src/handlers/put-note';
 import CustomSqsClient from '../../../src/utils/sqs';
 
 // This includes all tests for putItemHandler() 
-describe('Test putItemHandler', function () { 
- let putSpy;
-
+describe('Test putNoteHandler', function () { 
+ let putSpy: jest.SpyInstance;
  // Test one-time setup and teardown, see more in https://jestjs.io/docs/en/setup-teardown 
  beforeAll(() => { 
   // Mock SQS sendMessage method

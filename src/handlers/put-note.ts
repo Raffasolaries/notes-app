@@ -22,10 +22,10 @@ export const putNoteHandler = async (
  // Get id and name from the body of the request
  const body = JSON.parse(event.body || '{}');
  const id = body.id;
- const name = body.name;
+ const category = body.category;
 
  const client = new CustomSqsClient();
- const result = await client.send({ id, name });
+ const result = await client.send({ id, category });
 
  const response = {
   statusCode: 201,

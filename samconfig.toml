@@ -3,9 +3,9 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "notes-app"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-60w6d7be1vbw"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1a9p9e4bisl97"
 s3_prefix = "notes-app"
-region = "eu-south-1"
+region = "eu-west-1"
 profile = "raffasolaries"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"

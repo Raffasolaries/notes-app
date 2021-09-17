@@ -6,7 +6,7 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb';
  
 // This includes all tests for getAllNotesHandler() 
 describe('Test getAllNotesHandler', () => { 
- let scanSpy;
+ let scanSpy: jest.SpyInstance;
  // Test one-time setup and teardown, see more in https://jestjs.io/docs/en/setup-teardown 
  beforeAll(() => { 
   // Mock dynamodb get and put methods 
@@ -20,7 +20,7 @@ describe('Test getAllNotesHandler', () => {
  }); 
 
  it('should return ids', async () => { 
-  const items = [{ id: 'id1' }, { id: 'id2' }]; 
+  const items = [{ id: 'id1', category: 'cat1' }, { id: 'id2', category: 'cat2' }]; 
 
   // Return the specified value whenever the spied scan function is called 
   scanSpy.mockReturnValue({ 
