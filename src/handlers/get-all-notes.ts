@@ -14,7 +14,7 @@ export const getAllNotesHandler = async (
  event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> => {
  if (event.httpMethod !== 'GET') {
-  throw new Error(`getAllItems only accept GET method, you tried: ${event.httpMethod}`);
+  throw new Error(`getAllNotes only accept GET method, you tried: ${event.httpMethod}`);
  }
  // All log statements are written to CloudWatch
  console.info('received:', event);

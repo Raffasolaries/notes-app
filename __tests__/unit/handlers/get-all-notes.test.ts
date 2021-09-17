@@ -4,8 +4,8 @@ import { getAllNotesHandler } from '../../../src/handlers/get-all-notes';
 // Import dynamodb from aws-sdk 
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'; 
  
-// This includes all tests for getAllItemsHandler() 
-describe('Test getAllItemsHandler', () => { 
+// This includes all tests for getAllNotesHandler() 
+describe('Test getAllNotesHandler', () => { 
  let scanSpy;
  // Test one-time setup and teardown, see more in https://jestjs.io/docs/en/setup-teardown 
  beforeAll(() => { 
