@@ -70,7 +70,7 @@ Resources:
             Method: GET
 
   # This is a Lambda function config associated with the source code: put-item.js
-  putItemFunction:
+  putNoteFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
