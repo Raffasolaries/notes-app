@@ -1,5 +1,8 @@
 .PHONY: build-RuntimeDependenciesLayer build-lambda-common
-.PHONY: build-ExampleFunction
+.PHONY: build-getAllNotesFunction
+.PHONY: build-getNoteFunction
+.PHONY: build-putNoteFunction
+.PHONY: build-writeNoteFunction
 
 build-getAllNotesFunction:
 	$(MAKE) HANDLER=src/handlers/get-all-notes.ts build-lambda-common
