@@ -1,10 +1,14 @@
 .PHONY: build-RuntimeDependenciesLayer build-lambda-common
 .PHONY: build-ExampleFunction
 
-build-ExampleFunction:
-	$(MAKE) HANDLER=src/handlers/example.ts build-lambda-common
 build-getAllNotesFunction:
-	$(MAKE) HANDLER=src/handlers/get-all-items.ts build-lambda-common
+	$(MAKE) HANDLER=src/handlers/get-all-notes.ts build-lambda-common
+build-getNoteFunction:
+	$(MAKE) HANDLER=src/handlers/get-note.ts build-lambda-common
+build-putNoteFunction:
+	$(MAKE) HANDLER=src/handlers/put-note.ts build-lambda-common
+build-writeNoteFunction:
+	$(MAKE) HANDLER=src/handlers/write-note.ts build-lambda-common
 
 build-lambda-common:
 	npm install

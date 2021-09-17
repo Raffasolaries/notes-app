@@ -69,6 +69,25 @@ Resources:
             Path: /{category}/{id}
             Method: GET
 
+  # This is a Lambda function config associated with the source code: put-item.js
+  putItemFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: dist/handlers/put-note.putNoteHandler
+      Description: A simple example includes a HTTP post method to add one note to an SQS queue (to be written to a DynamoDB table later.
+      Policies:
+      # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
+      - SQSSendMessagePolicy:
+          QueueName: !GetAtt WriteQueue.QueueName
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+
   # This is a Lambda function config associated with the source code: write-item.ts
   writeNoteFunction:
     Type: AWS::Serverless::Function
@@ -79,9 +98,9 @@ Resources:
       Description: A simple example includes an SQS subscription to write queued object to DynamoDB
       Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
       Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
-        - DynamoDBCrudPolicy:
-            TableName: !Ref Table
+      # Give Create/Read/Update/Delete Permissions to the SampleTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
+      - DynamoDBCrudPolicy:
+          TableName: !Ref Table
       Events:
         # Subscription to primary SQS queue
         SQSQueueEvent:
