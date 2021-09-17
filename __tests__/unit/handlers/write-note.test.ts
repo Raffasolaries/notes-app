@@ -22,7 +22,7 @@ describe('Test writeNoteHandler', function () {
 
  // This test invokes putItemHandler() and compare the result
  it('should add id and category to the table', async () => {
-  const returnedItem = { id: 'id1', category: 'cat1' };
+  const returnedItem = { id: 'id1', category: 'cat1', text: 'This is an awesome note!!!' };
 
   // Return the specified value whenever the spied put function is called
   writeSpy.mockReturnValue({
@@ -30,7 +30,7 @@ describe('Test writeNoteHandler', function () {
   });
 
   const event = constructSQSEvent(
-   { id: "id1", name: "cat1" },
+   { id: "id1", category: "cat1", text: 'This is an awesome note!!!' },
   );
 
   await writeNoteHandler(event);

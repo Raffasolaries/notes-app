@@ -20,7 +20,7 @@ describe('Test getAllNotesHandler', () => {
  }); 
 
  it('should return ids', async () => { 
-  const items = [{ id: 'id1', category: 'cat1' }, { id: 'id2', category: 'cat2' }]; 
+  const items = [{ id: 'id1', category: 'cat1', text: 'This is an awesome note!!!' }, { id: 'id2', category: 'cat2', text: 'Something to think about ...' }]; 
 
   // Return the specified value whenever the spied scan function is called 
   scanSpy.mockReturnValue({ 

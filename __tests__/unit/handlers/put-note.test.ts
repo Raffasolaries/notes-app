@@ -26,7 +26,7 @@ describe('Test putNoteHandler', function () {
   putSpy.mockReturnValue(Promise.resolve({ MessageId: "5972648d-f5ec-4941-b1bc-1cd890982a22" }));
 
   const event = constructAPIGwEvent(
-   { id: "id1", category: "cat1" },
+   { id: "id1", category: "cat1", text: 'This is an awesome note!!!' },
    { method: 'POST' },
   );
 

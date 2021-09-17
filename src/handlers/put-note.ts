@@ -6,6 +6,7 @@ import {
 
 // Create clients and set shared const values outside of the handler.
 import CustomSqsClient from '../utils/sqs';
+import { Body } from 'aws-sdk/clients/s3';
 
 /**
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
@@ -23,9 +24,10 @@ export const putNoteHandler = async (
  const body = JSON.parse(event.body || '{}');
  const id = body.id;
  const category = body.category;
+ const text =  body.text;
 
  const client = new CustomSqsClient();
- const result = await client.send({ id, category });
+ const result = await client.send({ id, category, text });
 
  const response = {
   statusCode: 201,

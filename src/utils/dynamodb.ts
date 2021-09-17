@@ -13,7 +13,8 @@ export default class CustomDynamoClient {
 
  async readAll() {
   const data = await this.docClient.scan({ TableName: this.table }).promise();
-  return data.Items;
+  console.info('returned items', data);
+  return data.Items || [];
  }
 
  async read(id: string, category: string) {
@@ -22,7 +23,7 @@ export default class CustomDynamoClient {
    Key: { id: id, category: category },
   };
   const data = await this.docClient.get(params).promise();
-  return data.Item;
+  return data.Item || {};
  }
 
  async write(Item: object) {

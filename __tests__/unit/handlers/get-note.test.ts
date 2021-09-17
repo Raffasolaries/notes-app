@@ -21,7 +21,7 @@ describe('Test getNoteHandler', () => {
 
  // This test invokes getByIdHandler() and compare the result  
  it('should get note by id and category', async () => { 
-  const item = { id: 'id1', category: 'cat1' };
+  const item = { id: 'id1', category: 'cat1', text: 'this is an awesome note!!!' };
 
   // Return the specified value whenever the spied get function is called 
   getSpy.mockReturnValue({ 
