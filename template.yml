@@ -38,9 +38,9 @@ Resources:
       Name: notes-app
       Cors: "'*'"
       OpenApiVersion: "3.0.1"
-      Models:
-        NoteDto:
-          properties:
+      # Models:
+      #   NoteDto:
+      #     properties:
 
             
       DefinitionBody:
@@ -51,19 +51,19 @@ Resources:
           /:
             get:
               x-amazon-apigateway-integration:
-                uri: !Ref getAllNotesFunction.Arn
+                uri: !Sub ${getAllNotesFunction.Arn}
                 passthroughBehavior: "never"
                 httpMethod: "POST"
                 type: "aws_proxy"
                 payloadFormatVersion: "2.0"
               responses:
-                200:
+                "200":
                   description: Retrieve all elements
-                204:
+                "204":
                   description: No element found
             post:
               x-amazon-apigateway-integration:
-                uri: !Ref putNoteFunction.Arn
+                uri: !Sub ${putNoteFunction.Arn}
                 passthroughBehavior: "never"
                 httpMethod: "POST"
                 type: "aws_proxy"
@@ -72,10 +72,10 @@ Resources:
                 content:
                   application/json:
                     schema:
-                      $ref: ""#/components/schemas/NoteDto"
+                      $ref: "#/components/schemas/NoteDto"
             put:
               x-amazon-apigateway-integration:
-                uri: !Ref putNoteFunction.Arn
+                uri: !Sub ${putNoteFunction.Arn}
                 passthroughBehavior: "never"
                 httpMethod: "POST"
                 type: "aws_proxy"
@@ -84,29 +84,29 @@ Resources:
                 content:
                   application/json:
                     schema:
-                      $ref: ""#/components/schemas/NoteDto"
+                      $ref: "#/components/schemas/NoteDto"
           /{cateogry}/{id}:
             get:
               x-amazon-apigateway-integration:
-                uri: !Ref getNoteFunction.Arn
+                uri: !Sub ${getNoteFunction.Arn}
                 passthroughBehavior: "never"
                 httpMethod: "POST"
                 type: "aws_proxy"
               responses:
-                200:
+                "200":
                   description: Element retrieved
-                204:
+                "204":
                   description: No element found
             delete:
               x-amazon-apigateway-integration:
-                uri: !Ref  deleteNoteFunction.Arn
+                uri: !Sub ${deleteNoteFunction.Arn}
                 passthroughBehavior: "never"
                 httpMethod: "POST"
                 type: "aws_proxy"
               responses:
-                200:
+                "200":
                   description: Deleted element
-                406:
+                "406":
                   description: No element found
         components:
           schemas:
