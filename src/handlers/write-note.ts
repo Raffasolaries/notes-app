@@ -20,7 +20,8 @@ export const writeNoteHandler = async (
 
   const client = new CustomDynamoClient();
 
-  if (body.acttion === 'put') {
+  if (body.action === 'put')
+  {
    try
    {
     await client.write(item);
@@ -31,8 +32,8 @@ export const writeNoteHandler = async (
     console.error('DynamoDB write error', e);
    }
   }
-
-  if (body.action === 'update') {
+  else if (body.action === 'update') 
+  {
    try
    {
     await client.update(item);
@@ -43,7 +44,9 @@ export const writeNoteHandler = async (
     console.error('DynamoDB update error', e);
    }
   }
-
-  console.info('DynamoDB no available action found');
+  else
+  {
+   console.info('DynamoDB no available action found');
+  }
  }
 }

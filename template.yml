@@ -95,7 +95,7 @@ Resources:
       BuildMethod: makefile
     Properties:
       Handler: dist/handlers/update-note.updateNoteHandler
-      Description: A simple example includes a HTTP post method to add one note to an SQS queue (to be written to a DynamoDB table later.
+      Description: A simple example includes a HTTP put method to update one note to an SQS queue (to be written to a DynamoDB table later.
       Policies:
       # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
       - SQSSendMessagePolicy:

@@ -15,7 +15,7 @@ build-putNoteFunction:
 build-writeNoteFunction:
 	$(MAKE) HANDLER=src/handlers/write-note.ts build-lambda-common
 build-updateNoteFunction:
-	$(MAKE) HANDLER=src/handlers/udpate-note.ts build-lambda-common
+	$(MAKE) HANDLER=src/handlers/update-note.ts build-lambda-common
 build-deleteNoteFunction:
 	$(MAKE) HANDLER=src/handlers/delete-note.ts build-lambda-common
 
