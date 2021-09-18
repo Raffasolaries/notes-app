@@ -3,7 +3,7 @@ import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult
 } from "aws-lambda";
-
+import * as R from 'rambda';
 // Create clients and set shared const values outside of the handler.
 import CustomDynamoClient from '../utils/dynamodb';
 
@@ -23,7 +23,7 @@ export const getAllNotesHandler = async (
  const items = await client.readAll();
 
  const response = {
-  statusCode: 200,
+  statusCode: R.isEmpty(items) ? 204 : 200,
   body: JSON.stringify(items)
  };
 

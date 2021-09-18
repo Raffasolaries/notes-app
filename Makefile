@@ -3,6 +3,7 @@
 .PHONY: build-getNoteFunction
 .PHONY: build-putNoteFunction
 .PHONY: build-writeNoteFunction
+.PHONY: build-deleteNoteFunction
 
 build-getAllNotesFunction:
 	$(MAKE) HANDLER=src/handlers/get-all-notes.ts build-lambda-common
@@ -12,6 +13,8 @@ build-putNoteFunction:
 	$(MAKE) HANDLER=src/handlers/put-note.ts build-lambda-common
 build-writeNoteFunction:
 	$(MAKE) HANDLER=src/handlers/write-note.ts build-lambda-common
+build-deleteNoteFunction:
+	$(MAKE) HANDLER=src/handlers/delete-note.ts build-lambda-common
 
 build-lambda-common:
 	npm install

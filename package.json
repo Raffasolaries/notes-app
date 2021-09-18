@@ -4,8 +4,9 @@
  "description": "notes-app",
  "private": true,
  "dependencies": {
-   "aws-sdk": "^2.991.0",
-   "source-map-support": "^0.5.19"
+  "aws-sdk": "^2.991.0",
+  "rambda": "^6.9.0",
+  "source-map-support": "^0.5.19"
  },
  "devDependencies": {
   "@tsconfig/node14": "^1.0.0",

@@ -3,6 +3,7 @@ import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult
 } from "aws-lambda";
+// import * as R from 'rambda';
 // Create clients and set shared const values outside of the handler.
 import CustomDynamoClient from '../utils/dynamodb';
 
@@ -12,8 +13,8 @@ import CustomDynamoClient from '../utils/dynamodb';
 export const deleteNoteHandler = async (
  event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> => {
- if (event.httpMethod !== 'GET') {
-  throw new Error(`getMethod only accept GET method, you tried: ${event.httpMethod}`);
+ if (event.httpMethod !== 'DELETE') {
+  throw new Error(`deleteMethod only accept DELETE method, you tried: ${event.httpMethod}`);
  }
  // All log statements are written to CloudWatch
  console.info('received:', event);

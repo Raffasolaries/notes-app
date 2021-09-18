@@ -1,0 +1,7 @@
+{
+ "httpMethod": "DELETE",
+ "pathParameters": {
+  "id": "id1",
+  "category": "cat2"
+ }
+}
