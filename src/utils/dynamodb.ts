@@ -43,9 +43,12 @@ export default class CustomDynamoClient {
     id: Item.id,
     category: Item.category
    },
-   UpdateExpression: "SET text = :text",
+   UpdateExpression: "SET #txt = :txt",
    ExpressionAttributeValues: {
-    ":text": Item.text
+    ":txt": Item.text
+   },
+   ExpressionAttributeNames: {
+    "#txt": "text"
    },
    ConditionExpression: "attribute_exists(id) and attribute_exists(category)"
   };

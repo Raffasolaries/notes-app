@@ -9,8 +9,7 @@ Description: >-
 
 # Transform section specifies one or more macros that AWS CloudFormation uses to process your template
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-section-structure.html
-Transform:
-- AWS::Serverless-2016-10-31
+Transform: AWS::Serverless-2016-10-31
 
 Globals:
   Function:
@@ -31,7 +30,101 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
- # This is a Lambda function config associated with the source code: get-all-notes.js
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      TracingEnabled: true
+      Name: notes-app
+      Cors: "'*'"
+      OpenApiVersion: "3.0.1"
+      Models:
+        NoteDto:
+          properties:
+
+            
+      DefinitionBody:
+        openapi: "3.0.1"
+        info:
+          title: "notes-app"
+        paths:
+          /:
+            get:
+              x-amazon-apigateway-integration:
+                uri: !Ref getAllNotesFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "aws_proxy"
+                payloadFormatVersion: "2.0"
+              responses:
+                200:
+                  description: Retrieve all elements
+                204:
+                  description: No element found
+            post:
+              x-amazon-apigateway-integration:
+                uri: !Ref putNoteFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "aws_proxy"
+                payloadFormatVersion: "2.0"
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: ""#/components/schemas/NoteDto"
+            put:
+              x-amazon-apigateway-integration:
+                uri: !Ref putNoteFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "aws_proxy"
+                payloadFormatVersion: "2.0"
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: ""#/components/schemas/NoteDto"
+          /{cateogry}/{id}:
+            get:
+              x-amazon-apigateway-integration:
+                uri: !Ref getNoteFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "aws_proxy"
+              responses:
+                200:
+                  description: Element retrieved
+                204:
+                  description: No element found
+            delete:
+              x-amazon-apigateway-integration:
+                uri: !Ref  deleteNoteFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "aws_proxy"
+              responses:
+                200:
+                  description: Deleted element
+                406:
+                  description: No element found
+        components:
+          schemas:
+            NoteDto:
+              type: object
+              required:
+                - id
+                - category
+                - text
+            properties:
+              id:
+                type: string
+              category:
+                type: string
+              text:
+                type: string
+
+  # This is a Lambda function config associated with the source code: get-all-notes.js
   getAllNotesFunction:
     Type: AWS::Serverless::Function
     Metadata:
