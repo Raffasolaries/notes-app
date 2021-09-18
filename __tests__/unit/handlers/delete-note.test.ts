@@ -29,7 +29,7 @@ describe('Test deleteNoteHandler', () => {
   }); 
 
   const event = constructAPIGwEvent({}, { 
-   httpMethod: 'DELETE', 
+   method: 'DELETE',
    pathParameters: { 
     id: 'id1',
     category: 'cat1'

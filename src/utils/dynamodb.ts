@@ -1,5 +1,6 @@
 // Create a DocumentClient that represents the query to add an item
 import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { Note } from './interfaces';
 
 // Declare some custom client just to illustrate how TS will include only used files into lambda distribution
 export default class CustomDynamoClient {
@@ -18,7 +19,7 @@ export default class CustomDynamoClient {
  }
 
  async read(id: string, category: string) {
-  var params = {
+  const params = {
    TableName : this.table,
    Key: { id: id, category: category },
   };
@@ -26,18 +27,36 @@ export default class CustomDynamoClient {
   return data.Item || {};
  }
 
- async write(Item: object) {
+ async write(Item: Note) {
   const params = {
    TableName: this.table,
-   Item
+   Item,
+   ConditionExpression: "attribute_not_exists(id) and attribute_not_exists(category)"
   };
   return await this.docClient.put(params).promise();
  }
 
+ async update(Item: Note) {
+  const params = {
+   TableName: this.table,
+   Key: {
+    id: Item.id,
+    category: Item.category
+   },
+   UpdateExpression: "SET text = :text",
+   ExpressionAttributeValues: {
+    ":text": Item.text
+   },
+   ConditionExpression: "attribute_exists(id) and attribute_exists(category)"
+  };
+  return await this.docClient.update(params).promise();
+ }
+
  async delete(id: string, category: string) {
-  var params = {
+  const params = {
    TableName : this.table,
    Key: { id: id, category: category },
+   ConditionExpression: "attribute_exists(id) and attribute_exists(category)"
   };
   return await this.docClient.delete(params).promise();
  }

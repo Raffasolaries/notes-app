@@ -3,9 +3,10 @@ import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult
 } from "aws-lambda";
-// import * as R from 'rambda';
+import _ from 'lodash';
 // Create clients and set shared const values outside of the handler.
 import CustomDynamoClient from '../utils/dynamodb';
+import { DeleteItemOutput, ExecuteStatementOutput } from 'aws-sdk/clients/dynamodb';
 
 /**
  * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
@@ -24,11 +25,27 @@ export const deleteNoteHandler = async (
  const category = (event.pathParameters || {}).category || '';
 
  const client = new CustomDynamoClient();
- const item = await client.delete(id, category);
+ let output: any;
+ let response: APIGatewayProxyResult;
+ try
+ {
+  output = await client.delete(id, category);
+ }
+ catch (e: any)
+ {
+  console.error(`error occurred`, e);
+  response = {
+   statusCode: 406,
+   body: JSON.stringify({ message: e.errorMessage })
+  };
+  // All log statements are written to CloudWatch
+  console.info(`response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`);
+  return response;
+ }
 
- const response = {
+ response = {
   statusCode: 200,
-  body: JSON.stringify(item)
+  body: JSON.stringify(output)
  };
 
  // All log statements are written to CloudWatch

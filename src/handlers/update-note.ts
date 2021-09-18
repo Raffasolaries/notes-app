@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult
+ APIGatewayProxyEvent,
+ APIGatewayProxyResult
 } from "aws-lambda";
 
 // Create clients and set shared const values outside of the handler.
@@ -10,11 +10,11 @@ import CustomSqsClient from '../utils/sqs';
 /**
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
  */
-export const putNoteHandler = async (
+export const updateNoteHandler = async (
  event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> => {
- if (event.httpMethod !== 'POST') {
-  throw new Error(`postMethod only accepts POST method, you tried: ${event.httpMethod} method.`);
+ if (event.httpMethod !== 'PUT') {
+  throw new Error(`putMethod only accepts PUT method, you tried: ${event.httpMethod} method.`);
  }
  // All log statements are written to CloudWatch
  console.info('received:', event);
@@ -24,7 +24,7 @@ export const putNoteHandler = async (
  const id = body.id;
  const category = body.category;
  const text =  body.text;
- const action = 'put';
+ const action = 'update';
 
  const client = new CustomSqsClient();
  const result = await client.send({ id, category, text, action });

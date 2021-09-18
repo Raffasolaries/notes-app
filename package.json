@@ -4,8 +4,9 @@
  "description": "notes-app",
  "private": true,
  "dependencies": {
+  "@types/lodash": "^4.14.173",
   "aws-sdk": "^2.991.0",
-  "rambda": "^6.9.0",
+  "lodash": "^4.17.21",
   "source-map-support": "^0.5.19"
  },
  "devDependencies": {
