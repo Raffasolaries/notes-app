@@ -34,4 +34,12 @@ export default class CustomDynamoClient {
 
   return await this.docClient.put(params).promise();
  }
+
+ async delete(id: string, category: string) {
+  var params = {
+   TableName : this.table,
+   Key: { id: id, category: category },
+  };
+  return await this.docClient.delete(params).promise();
+ }
 }
