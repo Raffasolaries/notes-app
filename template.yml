@@ -4,12 +4,10 @@
 # The AWSTemplateFormatVersion identifies the capabilities of the template
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/format-version-structure.html
 AWSTemplateFormatVersion: 2010-09-09
-Description: >-
-  notes-app
-
 # Transform section specifies one or more macros that AWS CloudFormation uses to process your template
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-section-structure.html
 Transform: AWS::Serverless-2016-10-31
+Description: notes-app
 
 Globals:
   Function:
@@ -20,9 +18,15 @@ Globals:
       Variables:
        DYNAMODB_TABLE: !Ref Table
        ITEM_QUEUE: !Ref WriteQueue
+      #  STAGE: !Ref Stage
     Runtime: nodejs14.x
-    MemorySize: 128
+    MemorySize: 1024
     Timeout: 100
+
+Parameters:
+  Stage:
+    Type: String
+    Description: API Gateway stage variable and lambda function alias
 
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
@@ -33,96 +37,104 @@ Resources:
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Prod
+      StageName: !Ref Stage
       TracingEnabled: true
       Name: notes-app
       Cors: "'*'"
       OpenApiVersion: "3.0.1"
+
       # Models:
       #   NoteDto:
-      #     properties:
+      #     type: Object
+      #     Properties:
+      #     id:
+      #       type: string
+      #     category:
+      #       type: string
+      #     text:
+      #       type: string
 
             
-      DefinitionBody:
-        openapi: "3.0.1"
-        info:
-          title: "notes-app"
-        paths:
-          /:
-            get:
-              x-amazon-apigateway-integration:
-                uri: !Sub ${getAllNotesFunction.Arn}
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "aws_proxy"
-                payloadFormatVersion: "2.0"
-              responses:
-                "200":
-                  description: Retrieve all elements
-                "204":
-                  description: No element found
-            post:
-              x-amazon-apigateway-integration:
-                uri: !Sub ${putNoteFunction.Arn}
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "aws_proxy"
-                payloadFormatVersion: "2.0"
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      $ref: "#/components/schemas/NoteDto"
-            put:
-              x-amazon-apigateway-integration:
-                uri: !Sub ${putNoteFunction.Arn}
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "aws_proxy"
-                payloadFormatVersion: "2.0"
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      $ref: "#/components/schemas/NoteDto"
-          /{cateogry}/{id}:
-            get:
-              x-amazon-apigateway-integration:
-                uri: !Sub ${getNoteFunction.Arn}
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "aws_proxy"
-              responses:
-                "200":
-                  description: Element retrieved
-                "204":
-                  description: No element found
-            delete:
-              x-amazon-apigateway-integration:
-                uri: !Sub ${deleteNoteFunction.Arn}
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "aws_proxy"
-              responses:
-                "200":
-                  description: Deleted element
-                "406":
-                  description: No element found
-        components:
-          schemas:
-            NoteDto:
-              type: object
-              required:
-                - id
-                - category
-                - text
-            properties:
-              id:
-                type: string
-              category:
-                type: string
-              text:
-                type: string
+      # DefinitionBody:
+      #   openapi: "3.0.1"
+      #   info:
+      #     title: "notes-app"
+      #   paths:
+      #     /:
+      #       get:
+      #         x-amazon-apigateway-integration:
+      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getAllNotesFunction.Arn}/invocations
+      #           passthroughBehavior: "never"
+      #           httpMethod: "POST"
+      #           type: "AWS_PROXY"
+      #           payloadFormatVersion: "2.0"
+      #         responses:
+      #           "200":
+      #             description: Retrieve all elements
+      #           "204":
+      #             description: No element found
+      #       post:
+      #         x-amazon-apigateway-integration:
+      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${putNoteFunction.Arn}/invocations
+      #           passthroughBehavior: "never"
+      #           httpMethod: "POST"
+      #           type: "AWS_PROXY"
+      #           payloadFormatVersion: "2.0"
+      #         requestBody:
+      #           content:
+      #             application/json:
+      #               schema:
+      #                 $ref: "#/components/schemas/NoteDto"
+      #       put:
+      #         x-amazon-apigateway-integration:
+      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateNoteFunction.Arn}/invocations
+      #           passthroughBehavior: "never"
+      #           httpMethod: "POST"
+      #           type: "AWS_PROXY"
+      #           payloadFormatVersion: "2.0"
+      #         requestBody:
+      #           content:
+      #             application/json:
+      #               schema:
+      #                 $ref: "#/components/schemas/NoteDto"
+      #     /{cateogry}/{id}:
+      #       get:
+      #         x-amazon-apigateway-integration:
+      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getNoteFunction.Arn}/invocations
+      #           passthroughBehavior: "never"
+      #           httpMethod: "POST"
+      #           type: "aws_proxy"
+      #         responses:
+      #           "200":
+      #             description: Element retrieved
+      #           "204":
+      #             description: No element found
+      #       delete:
+      #         x-amazon-apigateway-integration:
+      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${deleteNoteFunction.Arn}/invocations
+      #           passthroughBehavior: "never"
+      #           httpMethod: "POST"
+      #           type: "AWS_PROXY"
+      #         responses:
+      #           "200":
+      #             description: Deleted element
+      #           "406":
+      #             description: No element found
+      #   components:
+      #     schemas:
+      #       NoteDto:
+      #         type: object
+      #         required:
+      #           - id
+      #           - category
+      #           - text
+      #         properties:
+      #           id:
+      #             type: string
+      #           category:
+      #             type: string
+      #           text:
+      #             type: string
 
   # This is a Lambda function config associated with the source code: get-all-notes.js
   getAllNotesFunction:
@@ -132,16 +144,18 @@ Resources:
     Properties:
       Handler: dist/handlers/get-all-notes.getAllNotesHandler
       Description: A simple example includes a HTTP get method to get all notes from a DynamoDB table.
+      AutoPublishAlias: !Ref Stage
       Policies:
       # Give Create/Read/Update/Delete Permissions to the SampleTable
       - DynamoDBCrudPolicy:
-            TableName: !Ref Table
+          TableName: !Ref Table
       Events:
         Api:
           Type: Api
           Properties:
             Path: /
             Method: GET
+            RestApiId: !Ref ApiGatewayApi
 
   # This is a Lambda function config associated with the source code: get-by-id.js
   getNoteFunction:
@@ -151,6 +165,7 @@ Resources:
     Properties:
       Handler: dist/handlers/get-note.getNoteHandler
       Description: A simple example includes a HTTP get method to get one note by id and category from a DynamoDB table.
+      AutoPublishAlias: !Ref Stage
       Policies:
       # Give Create/Read/Update/Delete Permissions to the SampleTable
       - DynamoDBCrudPolicy:
@@ -161,6 +176,7 @@ Resources:
           Properties:
             Path: /{category}/{id}
             Method: GET
+            RestApiId: !Ref ApiGatewayApi
 
   # This is a Lambda function config associated with the source code: put-item.js
   putNoteFunction:
@@ -170,6 +186,7 @@ Resources:
     Properties:
       Handler: dist/handlers/put-note.putNoteHandler
       Description: A simple example includes a HTTP post method to add one note to an SQS queue (to be written to a DynamoDB table later.
+      AutoPublishAlias: !Ref Stage
       Policies:
       # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
       - SQSSendMessagePolicy:
@@ -180,6 +197,10 @@ Resources:
           Properties:
             Path: /
             Method: POST
+            RestApiId: !Ref ApiGatewayApi
+            # RequestModel:
+            #   Model: NoteDto
+            #   Required: true
 
   # This is a Lambda function config associated with the source code: put-item.js
   updateNoteFunction:
@@ -189,6 +210,7 @@ Resources:
     Properties:
       Handler: dist/handlers/update-note.updateNoteHandler
       Description: A simple example includes a HTTP put method to update one note to an SQS queue (to be written to a DynamoDB table later.
+      AutoPublishAlias: !Ref Stage
       Policies:
       # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
       - SQSSendMessagePolicy:
@@ -199,6 +221,10 @@ Resources:
           Properties:
             Path: /
             Method: PUT
+            RestApiId: !Ref ApiGatewayApi
+            # RequestModel:
+            #   Model: NoteDto
+            #   Required: true
 
   # This is a Lambda function config associated with the source code: write-item.ts
   writeNoteFunction:
@@ -208,6 +234,7 @@ Resources:
     Properties:
       Handler: dist/handlers/write-note.writeNoteHandler
       Description: A simple example includes an SQS subscription to write queued object to DynamoDB
+      AutoPublishAlias: !Ref Stage
       Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
       Policies:
       # Give Create/Read/Update/Delete Permissions to the SampleTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
@@ -229,6 +256,7 @@ Resources:
     Properties:
       Handler: dist/handlers/delete-note.deleteNoteHandler
       Description: A simple example includes a HTTP delete method to delete one note by id and category from a DynamoDB table.
+      AutoPublishAlias: !Ref Stage
       Policies:
       # Give Create/Read/Update/Delete Permissions to the SampleTable
       - DynamoDBCrudPolicy:
@@ -239,6 +267,7 @@ Resources:
           Properties:
             Path: /{category}/{id}
             Method: DELETE
+            RestApiId: !Ref ApiGatewayApi
 
   # DynamoDB table to store item: {id: &lt;ID&gt;, category: &lt;CATEGORY&gt;}
   Table:
@@ -285,4 +314,4 @@ Resources:
 Outputs:
   WebEndpoint:
     Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
