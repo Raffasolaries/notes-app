@@ -6,7 +6,6 @@ import {
 import _ from 'lodash';
 // Create clients and set shared const values outside of the handler.
 import CustomDynamoClient from '../utils/dynamodb';
-import { DeleteItemOutput, ExecuteStatementOutput } from 'aws-sdk/clients/dynamodb';
 
 /**
  * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
