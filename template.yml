@@ -34,26 +34,41 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  ApiGatewayApi:
+  ApiGatewayHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: !Ref Stage
       Description: Notes App Backend Gateway
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - "*"
+        AllowCredentials: true
+        AllowMethods:
+          - "*"
       AccessLogSettings:
         DestinationArn: !Sub ${AccessLogs.Arn}
         Format: >-
           {"requestId":"$context.requestId", "ip": "$context.identity.sourceIp",
           "caller":"$context.identity.caller",
           "user":"$context.identity.user","requestTime":"$context.requestTime",
-          "eventType":"$context.eventType","routeKey":"$context.routeKey",
-          "status":"$context.status","connectionId":"$context.connectionId"}
-      DefaultRouteSettings: 
-        DetailedMetricsEnabled: true
-        LoggingLevel: INFO
-        DataTraceEnabled: false
-        ThrottlingBurstLimit: 10
-        ThrottlingRateLimit: 10
+          "routeKey":"$context.routeKey","status":"$context.status"}
+        # Format: >-
+        #   {"requestId":"$context.requestId", "ip": "$context.identity.sourceIp",
+        #   "caller":"$context.identity.caller",
+        #   "user":"$context.identity.user","requestTime":"$context.requestTime",
+        #   "eventType":"$context.eventType","routeKey":"$context.routeKey",
+        #   "status":"$context.status","connectionId":"$context.connectionId"}
+      # DefaultRouteSettings: 
+      #   DetailedMetricsEnabled: true
+      #   LoggingLevel: INFO
+      #   DataTraceEnabled: false
+      #   ThrottlingBurstLimit: 10
+      #   ThrottlingRateLimit: 10
 
+      # Policies:
+      #  - CloudWatchPutMetricPolicy
       # Models:
       #   NoteDto:
       #     type: Object
@@ -66,86 +81,93 @@ Resources:
       #       type: string
 
             
-      # DefinitionBody:
-      #   openapi: "3.0.1"
-      #   info:
-      #     title: "notes-app"
-      #   paths:
-      #     /:
-      #       get:
-      #         x-amazon-apigateway-integration:
-      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getAllNotesFunction.Arn}/invocations
-      #           passthroughBehavior: "never"
-      #           httpMethod: "POST"
-      #           type: "AWS_PROXY"
-      #           payloadFormatVersion: "2.0"
-      #         responses:
-      #           "200":
-      #             description: Retrieve all elements
-      #           "204":
-      #             description: No element found
-      #       post:
-      #         x-amazon-apigateway-integration:
-      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${putNoteFunction.Arn}/invocations
-      #           passthroughBehavior: "never"
-      #           httpMethod: "POST"
-      #           type: "AWS_PROXY"
-      #           payloadFormatVersion: "2.0"
-      #         requestBody:
-      #           content:
-      #             application/json:
-      #               schema:
-      #                 $ref: "#/components/schemas/NoteDto"
-      #       put:
-      #         x-amazon-apigateway-integration:
-      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateNoteFunction.Arn}/invocations
-      #           passthroughBehavior: "never"
-      #           httpMethod: "POST"
-      #           type: "AWS_PROXY"
-      #           payloadFormatVersion: "2.0"
-      #         requestBody:
-      #           content:
-      #             application/json:
-      #               schema:
-      #                 $ref: "#/components/schemas/NoteDto"
-      #     /{cateogry}/{id}:
-      #       get:
-      #         x-amazon-apigateway-integration:
-      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getNoteFunction.Arn}/invocations
-      #           passthroughBehavior: "never"
-      #           httpMethod: "POST"
-      #           type: "aws_proxy"
-      #         responses:
-      #           "200":
-      #             description: Element retrieved
-      #           "204":
-      #             description: No element found
-      #       delete:
-      #         x-amazon-apigateway-integration:
-      #           uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${deleteNoteFunction.Arn}/invocations
-      #           passthroughBehavior: "never"
-      #           httpMethod: "POST"
-      #           type: "AWS_PROXY"
-      #         responses:
-      #           "200":
-      #             description: Deleted element
-      #           "406":
-      #             description: No element found
-      #   components:
-      #     schemas:
-      #       NoteDto:
-      #         type: object
-      #         required:
-      #           - id
-      #           - category
-      #           - text
-      #         properties:
-      #           id:
-      #             type: string
-      #           category:
-      #             type: string
-      #           text:
-      #             type: string
+      DefinitionBody:
+        openapi: "3.0.1"
+        info:
+          title: "notes-app"
+        paths:
+          /:
+            get:
+              x-amazon-apigateway-integration:
+                # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getAllNotesFunction.Arn}/invocations
+                uri: !GetAtt getAllNotesFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "AWS_PROXY"
+                payloadFormatVersion: "2.0"
+              responses:
+                "200":
+                  description: Retrieve all elements
+                "204":
+                  description: No element found
+            post:
+              x-amazon-apigateway-integration:
+                # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${putNoteFunction.Arn}/invocations
+                uri: !GetAtt putNoteFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "AWS_PROXY"
+                payloadFormatVersion: "2.0"
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/NoteDto"
+                required: true
+            put:
+              x-amazon-apigateway-integration:
+                # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateNoteFunction.Arn}/invocations
+                uri: !GetAtt updateNoteFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "AWS_PROXY"
+                payloadFormatVersion: "2.0"
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/NoteDto"
+                required: true
+          /{cateogry}/{id}:
+            get:
+              x-amazon-apigateway-integration:
+                # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getNoteFunction.Arn}/invocations
+                uri: !GetAtt getNoteFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "aws_proxy"
+              responses:
+                "200":
+                  description: Element retrieved
+                "204":
+                  description: No element found
+            delete:
+              x-amazon-apigateway-integration:
+                # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${deleteNoteFunction.Arn}/invocations
+                uri: !GetAtt deleteNoteFunction.Arn
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "AWS_PROXY"
+              responses:
+                "200":
+                  description: Deleted element
+                "406":
+                  description: No element found
+        components:
+          schemas:
+            NoteDto:
+              type: object
+              required:
+                - id
+                - category
+                - text
+              properties:
+                id:
+                  type: string
+                category:
+                  type: string
+                text:
+                  type: string
 
   # This is a Lambda function config associated with the source code: get-all-notes.js
   getAllNotesFunction:
@@ -160,13 +182,15 @@ Resources:
       # Give Create/Read/Update/Delete Permissions to the SampleTable
       - DynamoDBReadPolicy:
           TableName: !Ref Table
+      - CloudWatchPutMetricPolicy: {}
+
       Events:
         Api:
           Type: HttpApi
           Properties:
             Path: /
             Method: GET
-            RestApiId: !Ref ApiGatewayApi
+            ApiId: !Ref ApiGatewayHttpApi
 
   # This is a Lambda function config associated with the source code: get-by-id.js
   getNoteFunction:
@@ -187,7 +211,7 @@ Resources:
           Properties:
             Path: /{category}/{id}
             Method: GET
-            RestApiId: !Ref ApiGatewayApi
+            ApiId: !Ref ApiGatewayHttpApi
 
   # This is a Lambda function config associated with the source code: put-item.js
   putNoteFunction:
@@ -208,7 +232,7 @@ Resources:
           Properties:
             Path: /
             Method: POST
-            RestApiId: !Ref ApiGatewayApi
+            ApiId: !Ref ApiGatewayHttpApi
             # RequestModel:
             #   Model: NoteDto
             #   Required: true
@@ -232,7 +256,7 @@ Resources:
           Properties:
             Path: /
             Method: PUT
-            RestApiId: !Ref ApiGatewayApi
+            ApiId: !Ref ApiGatewayHttpApi
             # RequestModel:
             #   Model: NoteDto
             #   Required: true
@@ -278,7 +302,7 @@ Resources:
           Properties:
             Path: /{category}/{id}
             Method: DELETE
-            RestApiId: !Ref ApiGatewayApi
+            ApiId: !Ref ApiGatewayHttpApi
 
   # DynamoDB table to store item: {id: &lt;ID&gt;, category: &lt;CATEGORY&gt;}
   Table:
@@ -311,7 +335,7 @@ Resources:
   AccessLogs:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub ${ApiGatewayApi.Id}-access-logs
+      LogGroupName: !Sub ${ApiGatewayHttpApi}-access-logs
       RetentionInDays: 365
 
   # Shared layer with Lambda runtime dependencies
@@ -330,4 +354,4 @@ Resources:
 Outputs:
   WebEndpoint:
     Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
+    Value: !Sub "https://${ApiGatewayHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
