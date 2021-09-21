@@ -35,13 +35,24 @@ Resources:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
   ApiGatewayApi:
-    Type: AWS::Serverless::Api
+    Type: AWS::Serverless::HttpApi
     Properties:
       StageName: !Ref Stage
-      TracingEnabled: true
-      Name: notes-app
-      Cors: "'*'"
-      OpenApiVersion: "3.0.1"
+      Description: Notes App Backend Gateway
+      AccessLogSetting:
+        DestinationArn: !Sub ${AccessLogs.Arn}
+        Format: >-
+          {"requestId":"$context.requestId", "ip": "$context.identity.sourceIp",
+          "caller":"$context.identity.caller",
+          "user":"$context.identity.user","requestTime":"$context.requestTime",
+          "eventType":"$context.eventType","routeKey":"$context.routeKey",
+          "status":"$context.status","connectionId":"$context.connectionId"}
+      DefaultRouteSettings: 
+        DetailedMetricsEnabled: true
+        LoggingLevel: INFO
+        DataTraceEnabled: false
+        ThrottlingBurstLimit: 10
+        ThrottlingRateLimit: 10
 
       # Models:
       #   NoteDto:
@@ -147,11 +158,11 @@ Resources:
       AutoPublishAlias: !Ref Stage
       Policies:
       # Give Create/Read/Update/Delete Permissions to the SampleTable
-      - DynamoDBCrudPolicy:
+      - DynamoDBReadPolicy:
           TableName: !Ref Table
       Events:
         Api:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /
             Method: GET
@@ -168,11 +179,11 @@ Resources:
       AutoPublishAlias: !Ref Stage
       Policies:
       # Give Create/Read/Update/Delete Permissions to the SampleTable
-      - DynamoDBCrudPolicy:
+      - DynamoDBReadPolicy:
           TableName: !Ref Table
       Events:
         Api:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /{category}/{id}
             Method: GET
@@ -193,7 +204,7 @@ Resources:
           QueueName: !GetAtt WriteQueue.QueueName
       Events:
         Api:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /
             Method: POST
@@ -217,7 +228,7 @@ Resources:
           QueueName: !GetAtt WriteQueue.QueueName
       Events:
         Api:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /
             Method: PUT
@@ -263,7 +274,7 @@ Resources:
           TableName: !Ref Table
       Events:
         Api:
-          Type: Api
+          Type: HttpApi
           Properties:
             Path: /{category}/{id}
             Method: DELETE
@@ -297,6 +308,11 @@ Resources:
     Properties:
       QueueName: WriteQueue
 
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${ApiGatewayApi.Id}-access-logs
+      RetentionInDays: 365
 
   # Shared layer with Lambda runtime dependencies
   RuntimeDependenciesLayer:
