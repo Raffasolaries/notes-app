@@ -39,7 +39,7 @@ Resources:
     Properties:
       StageName: !Ref Stage
       Description: Notes App Backend Gateway
-      AccessLogSetting:
+      AccessLogSettings:
         DestinationArn: !Sub ${AccessLogs.Arn}
         Format: >-
           {"requestId":"$context.requestId", "ip": "$context.identity.sourceIp",
