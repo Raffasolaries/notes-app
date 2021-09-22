@@ -39,14 +39,14 @@ Resources:
     Properties:
       StageName: !Ref Stage
       Description: Notes App Backend Gateway
-      CorsConfiguration:
-        AllowOrigins:
-          - "*"
-        AllowHeaders:
-          - "*"
-        AllowCredentials: true
-        AllowMethods:
-          - "*"
+      # CorsConfiguration:
+      #   AllowOrigins:
+      #     - "*"
+      #   AllowHeaders:
+      #     - "*"
+      #   AllowCredentials: true
+      #   AllowMethods:
+      #     - "*"
       AccessLogSettings:
         DestinationArn: !Sub ${AccessLogs.Arn}
         Format: >-
@@ -54,12 +54,6 @@ Resources:
           "caller":"$context.identity.caller",
           "user":"$context.identity.user","requestTime":"$context.requestTime",
           "routeKey":"$context.routeKey","status":"$context.status"}
-        # Format: >-
-        #   {"requestId":"$context.requestId", "ip": "$context.identity.sourceIp",
-        #   "caller":"$context.identity.caller",
-        #   "user":"$context.identity.user","requestTime":"$context.requestTime",
-        #   "eventType":"$context.eventType","routeKey":"$context.routeKey",
-        #   "status":"$context.status","connectionId":"$context.connectionId"}
       # DefaultRouteSettings: 
       #   DetailedMetricsEnabled: true
       #   LoggingLevel: INFO
@@ -80,7 +74,6 @@ Resources:
       #     text:
       #       type: string
 
-            
       DefinitionBody:
         openapi: "3.0.1"
         info:
@@ -88,26 +81,32 @@ Resources:
         paths:
           /:
             get:
+              sunnary: Gets all notes
+              operationId: GetNotes
               x-amazon-apigateway-integration:
                 # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getAllNotesFunction.Arn}/invocations
-                uri: !GetAtt getAllNotesFunction.Arn
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "AWS_PROXY"
                 payloadFormatVersion: "2.0"
+                uri: !GetAtt getAllNotesFunction.Arn
+                passthroughBehavior: WHEN_NO_TEMPLATES
+                httpMethod: POST
+                type: AWS_PROXY
+                connectionType: INTERNET
               responses:
                 "200":
                   description: Retrieve all elements
                 "204":
                   description: No element found
             post:
+              sunnary: Creates a new Note
+              operationId: CreateNote
               x-amazon-apigateway-integration:
                 # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${putNoteFunction.Arn}/invocations
-                uri: !GetAtt putNoteFunction.Arn
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "AWS_PROXY"
                 payloadFormatVersion: "2.0"
+                uri: !GetAtt putNoteFunction.Arn
+                passthroughBehavior: WHEN_NO_TEMPLATES
+                httpMethod: POST
+                type: AWS_PROXY
+                connectionType: INTERNET
               requestBody:
                 content:
                   application/json:
@@ -115,13 +114,16 @@ Resources:
                       $ref: "#/components/schemas/NoteDto"
                 required: true
             put:
+              sunnary: Updates a Note
+              operationId: UpdateNote
               x-amazon-apigateway-integration:
                 # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateNoteFunction.Arn}/invocations
-                uri: !GetAtt updateNoteFunction.Arn
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "AWS_PROXY"
                 payloadFormatVersion: "2.0"
+                uri: !GetAtt updateNoteFunction.Arn
+                passthroughBehavior: WHEN_NO_TEMPLATES
+                httpMethod: POST
+                type: AWS_PROXY
+                connectionType: INTERNET
               requestBody:
                 content:
                   application/json:
@@ -130,24 +132,32 @@ Resources:
                 required: true
           /{cateogry}/{id}:
             get:
+              sunnary: Gets a note
+              operationId: GetNote
               x-amazon-apigateway-integration:
                 # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getNoteFunction.Arn}/invocations
+                payloadFormatVersion: "2.0"
                 uri: !GetAtt getNoteFunction.Arn
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "aws_proxy"
+                passthroughBehavior: WHEN_NO_TEMPLATES
+                httpMethod: POST
+                type: AWS_PROXY
+                connectionType: INTERNET
               responses:
                 "200":
                   description: Element retrieved
                 "204":
                   description: No element found
             delete:
+              sunnary: Deletes a Note
+              operationId: DeleteNote
               x-amazon-apigateway-integration:
                 # uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${deleteNoteFunction.Arn}/invocations
+                payloadFormatVersion: "2.0"
                 uri: !GetAtt deleteNoteFunction.Arn
-                passthroughBehavior: "never"
-                httpMethod: "POST"
-                type: "AWS_PROXY"
+                passthroughBehavior: WHEN_NO_TEMPLATES
+                httpMethod: POST
+                type: AWS_PROXY
+                connectionType: INTERNET
               responses:
                 "200":
                   description: Deleted element
@@ -156,6 +166,7 @@ Resources:
         components:
           schemas:
             NoteDto:
+              description: Create and Update note Dto
               type: object
               required:
                 - id

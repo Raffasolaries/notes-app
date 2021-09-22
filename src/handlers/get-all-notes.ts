@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult
+ APIGatewayProxyEventV2,
+ APIGatewayProxyResultV2
 } from "aws-lambda";
 import _ from 'lodash';
 // Create clients and set shared const values outside of the handler.
@@ -11,10 +11,10 @@ import CustomDynamoClient from '../utils/dynamodb';
  * A simple example includes a HTTP get method to get all items from a DynamoDB table.
  */
 export const getAllNotesHandler = async (
- event: APIGatewayProxyEvent,
-): Promise<APIGatewayProxyResult> => {
- if (event.httpMethod !== 'GET') {
-  throw new Error(`getAllNotes only accept GET method, you tried: ${event.httpMethod}`);
+ event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
+ if (event.requestContext.http.method !== 'GET') {
+  throw new Error(`getAllNotes only accept GET method, you tried: ${event.requestContext.http.method}`);
  }
  // All log statements are written to CloudWatch
  console.info('received:', event);
@@ -23,11 +23,12 @@ export const getAllNotesHandler = async (
  const items = await client.readAll();
 
  const response = {
+  isBase64Encoded: false,
   statusCode: _.isEmpty(items) ? 204 : 200,
   body: JSON.stringify(items)
  };
 
  // All log statements are written to CloudWatch
- console.info(`response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`);
+ console.info(`response from: ${event.requestContext.http.path} statusCode: ${response.statusCode} body: ${response.body}`);
  return response;
 }
