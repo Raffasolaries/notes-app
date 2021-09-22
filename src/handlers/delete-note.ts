@@ -45,7 +45,10 @@ export const deleteNoteHandler = async (
  response = {
   isBase64Encoded: false,
   statusCode: 200,
-  body: JSON.stringify(output)
+  body: JSON.stringify(output),
+  headers: {
+   "content-type": "application/json"
+  }
  };
 
  // All log statements are written to CloudWatch

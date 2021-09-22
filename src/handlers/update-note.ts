@@ -32,7 +32,10 @@ export const updateNoteHandler = async (
  const response = {
   isBase64Encoded: false,
   statusCode: 201,
-  body: JSON.stringify({ MessageId: result.MessageId })
+  body: JSON.stringify({ MessageId: result.MessageId }),
+  headers: {
+   "content-type": "application/json"
+  }
  };
 
  // All log statements are written to CloudWatch

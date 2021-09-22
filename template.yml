@@ -58,12 +58,6 @@ Resources:
           "caller":"$context.identity.caller",
           "user":"$context.identity.user","requestTime":"$context.requestTime",
           "routeKey":"$context.routeKey","status":"$context.status"}
-      RouteSettings:
-        DetailedMetricsEnabled: true
-        LoggingLevel: INFO
-        DataTraceEnabled: true
-        ThrottlingBurstLimit: 10
-        ThrottlingRateLimit: 10
 
       # Policies:
       #  - CloudWatchPutMetricPolicy
@@ -248,9 +242,6 @@ Resources:
             Path: /
             Method: POST
             ApiId: !Ref ApiGatewayHttpApi
-            # RequestModel:
-            #   Model: NoteDto
-            #   Required: true
 
   # This is a Lambda function config associated with the source code: put-item.js
   updateNoteFunction:
@@ -272,9 +263,6 @@ Resources:
             Path: /
             Method: PUT
             ApiId: !Ref ApiGatewayHttpApi
-            # RequestModel:
-            #   Model: NoteDto
-            #   Required: true
 
   # This is a Lambda function config associated with the source code: write-item.ts
   writeNoteFunction:
