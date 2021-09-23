@@ -27,6 +27,10 @@ Parameters:
   Stage:
     Type: String
     Description: API Gateway stage variable and lambda function alias
+  CallbackURL:
+    Type: String
+    Description: Cognito JWT Authorizer Callback URL
+    Default: https://d11qc1n34wn4nn.cloudfront.net/
 
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
@@ -51,6 +55,21 @@ Resources:
           - POST
           - PUT
           - DELETE
+      FailOnWarnings: true
+      Auth:
+        DefaultAuthorizer: JWTAuthorizer
+        Authorizers:
+          JWTAuthorizer:
+            JwtConfiguration:
+              issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+              audience:
+                - !Ref AppClient
+            IdentitySource:
+              - $request.header.Authorization
+      DefaultRouteSettings:
+        DetailedMetricsEnabled: true
+        ThrottlingBurstLimit: 10
+        ThrottlingRateLimit: 10
       AccessLogSettings:
         DestinationArn: !Sub ${AccessLogs.Arn}
         Format: >-
@@ -58,19 +77,6 @@ Resources:
           "caller":"$context.identity.caller",
           "user":"$context.identity.user","requestTime":"$context.requestTime",
           "routeKey":"$context.routeKey","status":"$context.status"}
-
-      # Policies:
-      #  - CloudWatchPutMetricPolicy
-      # Models:
-      #   NoteDto:
-      #     type: Object
-      #     Properties:
-      #     id:
-      #       type: string
-      #     category:
-      #       type: string
-      #     text:
-      #       type: string
 
       # DefinitionBody:
       #   openapi: "3.0.1"
@@ -192,7 +198,6 @@ Resources:
       - DynamoDBReadPolicy:
           TableName: !Ref Table
       - CloudWatchPutMetricPolicy: {}
-
       Events:
         Api:
           Type: HttpApi
@@ -200,6 +205,8 @@ Resources:
             Path: /
             Method: GET
             ApiId: !Ref ApiGatewayHttpApi
+            Auth:
+              Authorizer: JWTAuthorizer
 
   # This is a Lambda function config associated with the source code: get-by-id.js
   getNoteFunction:
@@ -214,6 +221,7 @@ Resources:
       # Give Create/Read/Update/Delete Permissions to the SampleTable
       - DynamoDBReadPolicy:
           TableName: !Ref Table
+      - CloudWatchPutMetricPolicy: {}
       Events:
         Api:
           Type: HttpApi
@@ -221,6 +229,8 @@ Resources:
             Path: /{category}/{id}
             Method: GET
             ApiId: !Ref ApiGatewayHttpApi
+            Auth:
+              Authorizer: JWTAuthorizer
 
   # This is a Lambda function config associated with the source code: put-item.js
   putNoteFunction:
@@ -235,6 +245,7 @@ Resources:
       # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
       - SQSSendMessagePolicy:
           QueueName: !GetAtt WriteQueue.QueueName
+      - CloudWatchPutMetricPolicy: {}
       Events:
         Api:
           Type: HttpApi
@@ -242,6 +253,8 @@ Resources:
             Path: /
             Method: POST
             ApiId: !Ref ApiGatewayHttpApi
+            Auth:
+              Authorizer: JWTAuthorizer
 
   # This is a Lambda function config associated with the source code: put-item.js
   updateNoteFunction:
@@ -256,6 +269,7 @@ Resources:
       # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
       - SQSSendMessagePolicy:
           QueueName: !GetAtt WriteQueue.QueueName
+      - CloudWatchPutMetricPolicy: {}
       Events:
         Api:
           Type: HttpApi
@@ -263,6 +277,8 @@ Resources:
             Path: /
             Method: PUT
             ApiId: !Ref ApiGatewayHttpApi
+            Auth:
+              Authorizer: JWTAuthorizer
 
   # This is a Lambda function config associated with the source code: write-item.ts
   writeNoteFunction:
@@ -278,6 +294,7 @@ Resources:
       # Give Create/Read/Update/Delete Permissions to the SampleTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
       - DynamoDBCrudPolicy:
           TableName: !Ref Table
+      - CloudWatchPutMetricPolicy: {}
       Events:
         # Subscription to primary SQS queue
         SQSQueueEvent:
@@ -299,6 +316,7 @@ Resources:
       # Give Create/Read/Update/Delete Permissions to the SampleTable
       - DynamoDBCrudPolicy:
           TableName: !Ref Table
+      - CloudWatchPutMetricPolicy: {}
       Events:
         Api:
           Type: HttpApi
@@ -306,6 +324,8 @@ Resources:
             Path: /{category}/{id}
             Method: DELETE
             ApiId: !Ref ApiGatewayHttpApi
+            Auth:
+              Authorizer: JWTAuthorizer
 
   # DynamoDB table to store item: {id: &lt;ID&gt;, category: &lt;CATEGORY&gt;}
   Table:
@@ -354,7 +374,56 @@ Resources:
         - nodejs14.x
       RetentionPolicy: Retain
 
+  # Cognito Authorizer Pool
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: NotesAPIUserPool
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: email
+          AttributeDataType: String
+          Mutable: false
+          Required: true
+  AppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      AllowedOAuthFlows: 
+        - implicit
+      AllowedOAuthScopes: 
+        - aws.cognito.signin.user.admin
+        - email
+        - openid
+        - profile
+      AllowedOAuthFlowsUserPoolClient: true
+      ClientName: NotesAppClient
+      CallbackURLs:
+        - !Ref CallbackURL
+        # - !Sub https://${ApiGatewayHttpApi}.execute-api.${AWS::Region}.amazonaws.com/callback
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      UserPoolId: !Ref UserPool
+      SupportedIdentityProviders:
+        - COGNITO 
+  HostedUI:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties: 
+      Domain: !Join
+        - '-'
+        - - !Ref ApiGatewayHttpApi
+          - !Ref AppClient
+      UserPoolId: !Ref UserPool
+
 Outputs:
   WebEndpoint:
-    Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub "https://${ApiGatewayHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
+    Description: API Gateway endpoint URL for Prod stage
+    Value: !Sub https://${ApiGatewayHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
+  SignupURL:
+    Description: Signup
+    Value: !Sub https://${HostedUI}.auth.${AWS::Region}.amazoncognito.com/login?client_id=${AppClient}&response_type=token&scope=email+profile&redirect_uri=${CallbackURL}
