@@ -27,14 +27,25 @@ describe('Test getAllNotesHandler', () => {
    promise: () => Promise.resolve({ Items: items }) 
   }); 
 
-  const event = constructAPIGwEvent({}, { method: 'GET' });
+  const event = constructAPIGwEvent({}, {
+   requestContext: {
+    http: {
+     method: 'GET',
+     path: '/'
+    }
+   }
+  });
 
   // Invoke helloFromLambdaHandler() 
   const result = await getAllNotesHandler(event); 
 
-  const expectedResult = { 
+  const expectedResult = {
+   isBase64Encoded: false,
    statusCode: 200, 
-   body: JSON.stringify(items) 
+   body: JSON.stringify(items),
+   headers: {
+    "content-type": "application/json"
+   }
   }; 
 
   // Compare the result with the expected result 

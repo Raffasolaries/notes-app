@@ -29,7 +29,12 @@ describe('Test getNoteHandler', () => {
   }); 
 
   const event = constructAPIGwEvent({}, { 
-   httpMethod: 'GET', 
+   requestContext: {
+    http: {
+     method: 'GET',
+     path: '/cat1/id1'
+    }
+   }, 
    pathParameters: { 
     id: 'id1',
     category: 'cat1'
@@ -39,9 +44,13 @@ describe('Test getNoteHandler', () => {
   // Invoke getByIdHandler() 
   const result = await getNoteHandler(event); 
 
-  const expectedResult = { 
+  const expectedResult = {
+   isBase64Encoded: false,
    statusCode: 200, 
-   body: JSON.stringify(item) 
+   body: JSON.stringify(item),
+   headers: {
+    "content-type": "application/json"
+   }
   }; 
 
   // Compare the result with the expected result 

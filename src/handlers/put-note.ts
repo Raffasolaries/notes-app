@@ -1,18 +1,18 @@
 import 'source-map-support/register';
 import {
  APIGatewayProxyEventV2,
- APIGatewayProxyResultV2
+ APIGatewayProxyStructuredResultV2
 } from "aws-lambda";
 
 // Create clients and set shared const values outside of the handler.
 import CustomSqsClient from '../utils/sqs';
-import { Note } from '../utils/interfaces';
+import { ValidateNote } from '../utils/interfaces';
 /**
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
  */
 export const putNoteHandler = async (
  event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> => {
+): Promise<APIGatewayProxyStructuredResultV2> => {
  if (event.requestContext.http.method !== 'POST') {
   throw new Error(`postMethod only accepts POST method, you tried: ${event.requestContext.http.method} method.`);
  }
@@ -20,16 +20,26 @@ export const putNoteHandler = async (
  console.info('received:', event);
 
  // Get id and name from the body of the request
- const body: Note = JSON.parse(event.body || '{}');
- const id: string = body.id;
- const category: string = body.category;
- const text: string =  body.text;
- const action: string = 'put';
+ const body = JSON.parse(event.body || '{}');
+ if (!ValidateNote(body)){
+  return {
+   isBase64Encoded: false,
+   statusCode: 400,
+   body: JSON.stringify({ errors: ValidateNote.errors }),
+   headers: {
+    "content-type": "application/json"
+   }
+  };
+ }
+ const id = body.id;
+ const category = body.category;
+ const text =  body.text;
+ const action = 'put';
 
  const client = new CustomSqsClient();
  const result = await client.send({ id, category, text, action });
 
- const response = {
+ const response: APIGatewayProxyStructuredResultV2 = {
   isBase64Encoded: false,
   statusCode: 201,
   body: JSON.stringify({ MessageId: result.MessageId }),

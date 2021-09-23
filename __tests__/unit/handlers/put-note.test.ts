@@ -27,7 +27,14 @@ describe('Test putNoteHandler', function () {
 
   const event = constructAPIGwEvent(
    { id: "id1", category: "cat1", text: 'This is an awesome note!!!' },
-   { method: 'POST' },
+   {
+    requestContext: {
+     http: {
+      method: 'POST',
+      path: '/'
+     }
+    }
+   },
   );
 
   // Invoke putItemHandler() 

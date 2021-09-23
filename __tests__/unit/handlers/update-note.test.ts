@@ -27,7 +27,14 @@ describe('Test updateNoteHandler', function () {
 
   const event = constructAPIGwEvent(
    { id: "id1", category: "cat1", text: 'This is an awesome note!!!' },
-   { method: 'PUT' },
+   {
+    requestContext: {
+     http: {
+      method: 'PUT',
+      path: '/'
+     }
+    }
+   },
   );
 
   // Invoke putItemHandler() 
@@ -35,7 +42,7 @@ describe('Test updateNoteHandler', function () {
 
   // Compare the result with the expected result 
   expect(result.statusCode).toEqual(201);
-  expect(JSON.parse(result.body)).toMatchObject({ MessageId: "5972648d-f5ec-4941-b1bc-1cd890982a22" });
+  expect(JSON.parse(result.body || '')).toMatchObject({ MessageId: "5972648d-f5ec-4941-b1bc-1cd890982a22" });
   expect(updateSpy).toHaveBeenCalled();
  }); 
 }); 

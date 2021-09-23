@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 import {
  APIGatewayProxyEventV2,
- APIGatewayProxyResultV2
+ APIGatewayProxyStructuredResultV2
 } from "aws-lambda";
 import _ from 'lodash';
 // Create clients and set shared const values outside of the handler.
@@ -12,7 +12,7 @@ import CustomDynamoClient from '../utils/dynamodb';
  */
 export const getNoteHandler = async (
  event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> => {
+): Promise<APIGatewayProxyStructuredResultV2> => {
  if (event.requestContext.http.method !== 'GET') {
   throw new Error(`getMethod only accept GET method, you tried: ${event.requestContext.http.method}`);
  }

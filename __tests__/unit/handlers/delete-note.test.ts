@@ -29,7 +29,12 @@ describe('Test deleteNoteHandler', () => {
   }); 
 
   const event = constructAPIGwEvent({}, { 
-   method: 'DELETE',
+   requestContext: {
+    http: {
+     method: 'DELETE',
+     path: '/cat1/id1'
+    }
+   },
    pathParameters: { 
     id: 'id1',
     category: 'cat1'
@@ -39,9 +44,13 @@ describe('Test deleteNoteHandler', () => {
   // Invoke getByIdHandler() 
   const result = await deleteNoteHandler(event); 
 
-  const expectedResult = { 
+  const expectedResult = {
+   isBase64Encoded: false,
    statusCode: 200, 
-   body: JSON.stringify(item) 
+   body: JSON.stringify(item),
+   headers: {
+    "content-type": "application/json"
+   }
   }; 
 
   // Compare the result with the expected result 

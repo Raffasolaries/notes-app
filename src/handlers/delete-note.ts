@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 import {
  APIGatewayProxyEventV2,
- APIGatewayProxyResultV2
+ APIGatewayProxyStructuredResultV2
 } from "aws-lambda";
 import _ from 'lodash';
 // Create clients and set shared const values outside of the handler.
@@ -12,7 +12,7 @@ import CustomDynamoClient from '../utils/dynamodb';
  */
 export const deleteNoteHandler = async (
  event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> => {
+): Promise<APIGatewayProxyStructuredResultV2> => {
  if (event.requestContext.http.method !== 'DELETE') {
   throw new Error(`deleteMethod only accept DELETE method, you tried: ${event.requestContext.http.method}`);
  }
@@ -25,7 +25,7 @@ export const deleteNoteHandler = async (
 
  const client = new CustomDynamoClient();
  let output: any;
- let response: APIGatewayProxyResultV2;
+ let response: APIGatewayProxyStructuredResultV2;
  try
  {
   output = await client.delete(id, category);
@@ -34,8 +34,12 @@ export const deleteNoteHandler = async (
  {
   console.error(`error occurred`, e);
   response = {
+   isBase64Encoded: false,
    statusCode: 406,
-   body: JSON.stringify({ message: e.errorMessage })
+   body: JSON.stringify({ message: e.errorMessage }),
+   headers: {
+    "content-type": "application/json"
+   }
   };
   // All log statements are written to CloudWatch
   console.info(`response from: ${event.requestContext.http.path} statusCode: ${response.statusCode} body: ${response.body}`);

@@ -1,19 +1,19 @@
-import { APIGatewayProxyEvent, SQSEvent } from 'aws-lambda';
+import { APIGatewayProxyEventV2, SQSEvent } from 'aws-lambda';
 
-export function constructAPIGwEvent(message: any, options: Record<string, any> = {}): APIGatewayProxyEvent {
+export function constructAPIGwEvent(message: any, options: Record<string, any> = {}): APIGatewayProxyEventV2 {
  return {
-  httpMethod: options.method || 'GET',
-  path: options.path || '/',
+  version: '2.0',
+  routeKey: '$default',
+  rawPath: ((options.requestContext || {}).http || {}).path || '/',
+  rawQueryString: 'parameter1=value1&parameter1=value2&parameter2=value',
+  cookies: options.cookies || [],
+  requestContext: options.requestContext || {},
   queryStringParameters: options.query || {},
   headers: options.headers || {},
   body: options.rawBody || JSON.stringify(message),
-  multiValueHeaders: {},
-  multiValueQueryStringParameters: {},
   isBase64Encoded: false,
   pathParameters: options.pathParameters || {},
-  stageVariables: options.stageVariables || {},
-  requestContext: options.requestContext || {},
-  resource: options.resource || '',
+  stageVariables: options.stageVariables || {}
  }
 }
 

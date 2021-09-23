@@ -1,18 +1,18 @@
 import 'source-map-support/register';
 import {
  APIGatewayProxyEventV2,
- APIGatewayProxyResultV2
+ APIGatewayProxyStructuredResultV2
 } from "aws-lambda";
 
 // Create clients and set shared const values outside of the handler.
 import CustomSqsClient from '../utils/sqs';
-
+import { ValidateNote } from '../utils/interfaces';
 /**
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
  */
 export const updateNoteHandler = async (
  event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> => {
+): Promise<APIGatewayProxyStructuredResultV2> => {
  if (event.requestContext.http.method !== 'PUT') {
   throw new Error(`putMethod only accepts PUT method, you tried: ${event.requestContext.http.method} method.`);
  }
@@ -21,6 +21,16 @@ export const updateNoteHandler = async (
 
  // Get id and name from the body of the request
  const body = JSON.parse(event.body || '{}');
+ if (!ValidateNote(body)){
+  return {
+   isBase64Encoded: false,
+   statusCode: 400,
+   body: JSON.stringify({ errors: ValidateNote.errors }),
+   headers: {
+    "content-type": "application/json"
+   }
+  };
+ }
  const id = body.id;
  const category = body.category;
  const text =  body.text;
