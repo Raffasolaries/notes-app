@@ -64,8 +64,7 @@ Resources:
               issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
               audience:
                 - !Ref AppClient
-            IdentitySource:
-              - $request.header.Authorization
+            IdentitySource: $request.header.Authorization
       DefaultRouteSettings:
         DetailedMetricsEnabled: true
         ThrottlingBurstLimit: 10
