@@ -1,5 +1,9 @@
 {
- "httpMethod": "GET",
+ "requestContext": {
+  "http": {
+   "method": "GET"
+  }
+ },
  "pathParameters": {
   "id": "123",
   "category": "Books"

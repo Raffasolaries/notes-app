@@ -1,5 +1,9 @@
 {
- "httpMethod": "DELETE",
+ "requestContext": {
+  "http": {
+   "method": "DELETE"
+  }
+ },
  "pathParameters": {
   "id": "id1",
   "category": "cat2"

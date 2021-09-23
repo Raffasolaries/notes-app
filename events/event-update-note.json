@@ -1,4 +1,8 @@
 {
- "httpMethod": "PUT",
+ "requestContext": {
+  "http": {
+   "method": "PUT"
+  }
+ },
  "body": "{\"id\": \"id1\",\"category\": \"cat1\",\"text\": \"This is an awesome note!!!\"}"
 }

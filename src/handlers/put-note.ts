@@ -6,7 +6,7 @@ import {
 
 // Create clients and set shared const values outside of the handler.
 import CustomSqsClient from '../utils/sqs';
-
+import { Note } from '../utils/interfaces';
 /**
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
  */
@@ -20,11 +20,11 @@ export const putNoteHandler = async (
  console.info('received:', event);
 
  // Get id and name from the body of the request
- const body = JSON.parse(event.body || '{}');
- const id = body.id;
- const category = body.category;
- const text =  body.text;
- const action = 'put';
+ const body: Note = JSON.parse(event.body || '{}');
+ const id: string = body.id;
+ const category: string = body.category;
+ const text: string =  body.text;
+ const action: string = 'put';
 
  const client = new CustomSqsClient();
  const result = await client.send({ id, category, text, action });
