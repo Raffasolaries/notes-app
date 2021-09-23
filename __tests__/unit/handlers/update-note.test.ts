@@ -29,6 +29,7 @@ describe('Test updateNoteHandler', function () {
    { id: "id1", category: "cat1", text: 'This is an awesome note!!!' },
    {
     requestContext: {
+     routeKey: 'PUT /',
      http: {
       method: 'PUT',
       path: '/'

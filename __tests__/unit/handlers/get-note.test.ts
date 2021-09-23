@@ -30,6 +30,7 @@ describe('Test getNoteHandler', () => {
 
   const event = constructAPIGwEvent({}, { 
    requestContext: {
+    routeKey: 'GET /{category}/{id}',
     http: {
      method: 'GET',
      path: '/cat1/id1'

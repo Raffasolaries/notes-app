@@ -30,6 +30,7 @@ describe('Test deleteNoteHandler', () => {
 
   const event = constructAPIGwEvent({}, { 
    requestContext: {
+    routeKey: 'DELETE /{category}/{id}',
     http: {
      method: 'DELETE',
      path: '/cat1/id1'

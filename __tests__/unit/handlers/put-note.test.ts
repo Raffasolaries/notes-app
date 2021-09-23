@@ -29,6 +29,7 @@ describe('Test putNoteHandler', function () {
    { id: "id1", category: "cat1", text: 'This is an awesome note!!!' },
    {
     requestContext: {
+     routeKey: 'POST /',
      http: {
       method: 'POST',
       path: '/'
@@ -42,7 +43,7 @@ describe('Test putNoteHandler', function () {
 
   // Compare the result with the expected result 
   expect(result.statusCode).toEqual(201);
-  expect(JSON.parse(result.body)).toMatchObject({ MessageId: "5972648d-f5ec-4941-b1bc-1cd890982a22" });
+  expect(JSON.parse(result.body || '')).toMatchObject({ MessageId: "5972648d-f5ec-4941-b1bc-1cd890982a22" });
   expect(putSpy).toHaveBeenCalled();
  }); 
 }); 

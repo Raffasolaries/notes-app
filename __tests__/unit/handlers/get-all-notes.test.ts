@@ -29,6 +29,7 @@ describe('Test getAllNotesHandler', () => {
 
   const event = constructAPIGwEvent({}, {
    requestContext: {
+    routeKey: 'GET /',
     http: {
      method: 'GET',
      path: '/'

@@ -53,7 +53,7 @@ describe('Test writeNoteHandler', function () {
   const event = constructSQSEvent(
    { id: "id1", category: "cat1", text: 'This is an awesome note!!!', action: 'update' },
   );
-
+  process.env.DYNAMOBB_TABLE = 'Notes';
   await writeNoteHandler(event);
 
   expect(updateSpy).toHaveBeenCalled();

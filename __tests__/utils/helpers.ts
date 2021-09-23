@@ -3,7 +3,7 @@ import { APIGatewayProxyEventV2, SQSEvent } from 'aws-lambda';
 export function constructAPIGwEvent(message: any, options: Record<string, any> = {}): APIGatewayProxyEventV2 {
  return {
   version: '2.0',
-  routeKey: '$default',
+  routeKey: (options.requestContext || {}).routeKey || '/ GET',
   rawPath: ((options.requestContext || {}).http || {}).path || '/',
   rawQueryString: 'parameter1=value1&parameter1=value2&parameter2=value',
   cookies: options.cookies || [],
