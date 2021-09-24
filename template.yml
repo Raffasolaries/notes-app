@@ -27,6 +27,7 @@ Parameters:
   Stage:
     Type: String
     Description: API Gateway stage variable and lambda function alias
+    Default: prod
   CallbackURL:
     Type: String
     Description: Cognito JWT Authorizer Callback URL
