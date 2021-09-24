@@ -164,6 +164,12 @@ Deploy the updated application.
 $ sam deploy
 ```
 
+The stack takes also a **Stage** variable which could be used to give a precise name to the deployment stage.
+
+```bash
+$ sam deploy --parameter-overrides Stage=<Stage Name>
+```
+
 Open the [**Applications**](https://console.aws.amazon.com/lambda/home#/applications) page of the Lambda console, and choose your application. When the deployment completes, view the application resources on the **Overview** tab to see the new resource. Then, choose the function to see the updated configuration that specifies the dead-letter queue.
 
 ## Fetch, tail, and filter Lambda function logs
