@@ -1,6 +1,7 @@
 # Notes App
 
-This is a Demo Project which
+This is a Demo Project which is composed by an API Gateway V2 with a Congnito JWT Authorizer; the API Gateway has proxy integration with multiple Lambda functions, one for each route. different lambda functions integration is made in order to simplify and granularize future deployments with a possible CI/CD pipeline.
+All the lambdas code is written in Typescript in order to take advantage of typings.
 This project contains source code and supporting files for a serverless application that you can deploy with the AWS Serverless Application Model (AWS SAM) command line interface (CLI). It includes the following files and folders:
 
 - `src` - Code for the application's Lambda function written in TypeScript.
@@ -135,7 +136,7 @@ You can debug with external debugger by this manual: [Step-through debugging Nod
 ## Add a resource to your application
 The application template uses AWS SAM to define application resources. AWS SAM is an extension of AWS CloudFormation with a simpler syntax for configuring common serverless application resources, such as functions, triggers, and APIs. For resources that aren't included in the [AWS SAM specification](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md), you can use the standard [AWS CloudFormation resource types](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html).
 
-Update `template.yml` to add a dead-letter queue to your application. In the **Resources** section, add a resource named **MyQueue** with the type **AWS::SQS::Queue**. Then add a property to the **AWS::Serverless::Function** resource named **DeadLetterQueue** that targets the queue's Amazon Resource Name (ARN), and a policy that grants the function permission to access the queue.
+Template `template.yml` adds a dead-letter queue to your application. In the **Resources** section, the resource named **DeadLetterQueue** with the type **AWS::SQS::Queue**. Is possible to customize it. Then add a property to the **AWS::Serverless::Function** resource named **DeadLetterQueue** that targets the queue's Amazon Resource Name (ARN), and a policy that grants the function permission to access the queue.
 
 ```yaml
 Resources:
@@ -193,7 +194,7 @@ $ npm test
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-$ aws cloudformation delete-stack --stack-name aws-sam-typescript-layers-example
+$ aws cloudformation delete-stack --stack-name notes-app
 ```
 
 ## Resources

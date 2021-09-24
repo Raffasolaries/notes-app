@@ -11,6 +11,10 @@ Description: notes-app
 
 Globals:
   Function:
+    Tracing: Active
+    DeadLetterQueue:
+      Type: SQS 
+      TargetArn: !GetAtt DeadLetterQueue.Arn      
     Layers:
       - !Ref RuntimeDependenciesLayer
     Environment:
@@ -194,10 +198,12 @@ Resources:
       Description: A simple example includes a HTTP get method to get all notes from a DynamoDB table.
       AutoPublishAlias: !Ref Stage
       Policies:
-      # Give Create/Read/Update/Delete Permissions to the SampleTable
-      - DynamoDBReadPolicy:
-          TableName: !Ref Table
-      - CloudWatchPutMetricPolicy: {}
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref Table
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt DeadLetterQueue.QueueName
+        - CloudWatchPutMetricPolicy: {}
       Events:
         Api:
           Type: HttpApi
@@ -218,10 +224,12 @@ Resources:
       Description: A simple example includes a HTTP get method to get one note by id and category from a DynamoDB table.
       AutoPublishAlias: !Ref Stage
       Policies:
-      # Give Create/Read/Update/Delete Permissions to the SampleTable
-      - DynamoDBReadPolicy:
-          TableName: !Ref Table
-      - CloudWatchPutMetricPolicy: {}
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref Table
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt DeadLetterQueue.QueueName
+        - CloudWatchPutMetricPolicy: {}
       Events:
         Api:
           Type: HttpApi
@@ -242,10 +250,12 @@ Resources:
       Description: A simple example includes a HTTP post method to add one note to an SQS queue (to be written to a DynamoDB table later.
       AutoPublishAlias: !Ref Stage
       Policies:
-      # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
-      - SQSSendMessagePolicy:
-          QueueName: !GetAtt WriteQueue.QueueName
-      - CloudWatchPutMetricPolicy: {}
+        # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt WriteQueue.QueueName
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt DeadLetterQueue.QueueName
+        - CloudWatchPutMetricPolicy: {}
       Events:
         Api:
           Type: HttpApi
@@ -266,10 +276,12 @@ Resources:
       Description: A simple example includes a HTTP put method to update one note to an SQS queue (to be written to a DynamoDB table later.
       AutoPublishAlias: !Ref Stage
       Policies:
-      # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
-      - SQSSendMessagePolicy:
-          QueueName: !GetAtt WriteQueue.QueueName
-      - CloudWatchPutMetricPolicy: {}
+        # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt WriteQueue.QueueName
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt DeadLetterQueue.QueueName
+        - CloudWatchPutMetricPolicy: {}
       Events:
         Api:
           Type: HttpApi
@@ -291,10 +303,12 @@ Resources:
       AutoPublishAlias: !Ref Stage
       Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
       Policies:
-      # Give Create/Read/Update/Delete Permissions to the SampleTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
-      - DynamoDBCrudPolicy:
-          TableName: !Ref Table
-      - CloudWatchPutMetricPolicy: {}
+        # Give Create/Read/Update/Delete Permissions to the SampleTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt DeadLetterQueue.QueueName  
+        - CloudWatchPutMetricPolicy: {}
       Events:
         # Subscription to primary SQS queue
         SQSQueueEvent:
@@ -313,10 +327,12 @@ Resources:
       Description: A simple example includes a HTTP delete method to delete one note by id and category from a DynamoDB table.
       AutoPublishAlias: !Ref Stage
       Policies:
-      # Give Create/Read/Update/Delete Permissions to the SampleTable
-      - DynamoDBCrudPolicy:
-          TableName: !Ref Table
-      - CloudWatchPutMetricPolicy: {}
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt DeadLetterQueue.QueueName
+        - CloudWatchPutMetricPolicy: {}
       Events:
         Api:
           Type: HttpApi
@@ -354,6 +370,11 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: WriteQueue
+  
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: DeadLetterQueue
 
   AccessLogs:
     Type: AWS::Logs::LogGroup
@@ -390,6 +411,7 @@ Resources:
           AttributeDataType: String
           Mutable: false
           Required: true
+
   AppClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
@@ -410,7 +432,8 @@ Resources:
         - ALLOW_REFRESH_TOKEN_AUTH
       UserPoolId: !Ref UserPool
       SupportedIdentityProviders:
-        - COGNITO 
+        - COGNITO
+
   HostedUI:
     Type: AWS::Cognito::UserPoolDomain
     Properties: 
