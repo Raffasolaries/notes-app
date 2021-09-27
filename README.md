@@ -21,6 +21,10 @@ To get started, see the following:
 * [VS Code](https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/welcome.html)
 * [Visual Studio](https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/welcome.html)
 
+## Data Model
+
+The Notes application comes with a sample data model with `id`, which is ideally referring to the user id, `category`, which is referring to the note category and `text`, which is referring to the actual note.
+
 ## Deploy the application
 
 The AWS SAM CLI is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment and API.
